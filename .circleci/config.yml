@@ -18,8 +18,14 @@ jobs:
           name: Create the ~/artifacts directory if it doesn't exist
           command: mkdir -p ~/artifacts
       - run:
+          name: List build files before copying
+          command: ls -alh build dist public .output .next .docusaurus
+      - run:
           name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
+          command: cp -R build dist public .output .next .docusaurus ~/artifacts || true
+      - run:
+          name: List artifacts directory after copy
+          command: ls -alh ~/artifacts  # Debug step
       - store_artifacts:
           path: ~/artifacts
           destination: node-build
@@ -36,7 +42,7 @@ jobs:
           fingerprints:
             - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc
       - run:
-          name: List artifacts directory
+          name: List artifacts directory before deploy
           command: ls -alh ~/artifacts  # Debug step
       - run:
           name: Deploy to EC2

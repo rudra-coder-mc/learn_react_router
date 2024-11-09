@@ -17,7 +17,6 @@ jobs:
       - run:
           name: Create the ~/artifacts directory if it doesn't exist
           command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
       - run:
           name: Copy artifacts
           command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
@@ -29,13 +28,16 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      - setup_remote_docker  # Removed the `version` attribute here
+      - setup_remote_docker
       - run:
           name: Install SSH Client
           command: sudo apt-get update && sudo apt-get install -y openssh-client
       - add_ssh_keys:
           fingerprints:
-          - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc  # Ensure this matches your CircleCI SSH key fingerprint
+            - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc
+      - run:
+          name: List artifacts directory
+          command: ls -alh ~/artifacts  # Debug step
       - run:
           name: Deploy to EC2
           command: |

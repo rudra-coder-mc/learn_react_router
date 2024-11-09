@@ -10,24 +10,24 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-          cache-path: ~/project/node_modules
+          cache-path: /home/circleci/project/node_modules
           override-ci-command: npm install
       - run:
           command: npm run build
       - run:
-          name: Create the ~/artifacts directory if it doesn't exist
+          name: Create the /home/circleci/artifacts directory if it doesn't exist
           command: |
-            mkdir -p ~/artifacts
-            ls -alh ~/artifacts  # Verify directory creation
+            mkdir -p /home/circleci/artifacts
+            ls -alh /home/circleci/artifacts  # Verify directory creation
       - run:
           name: Copy artifacts
           command: |
-            cp -R dist public ~/artifacts 2>/dev/null || true
-            ls -alh ~/artifacts  # Verify if files are copied correctly
+            cp -R dist public /home/circleci/artifacts 2>/dev/null || true
+            ls -alh /home/circleci/artifacts  # Verify if files are copied correctly
       - persist_to_workspace:
-          root: ~/  # Persist the home directory
+          root: /home/circleci  # Persist the home directory
           paths:
-            - ~/artifacts  # Only persist the artifacts directory
+            - /home/circleci/artifacts  # Persist the artifacts directory
 
   deploy:
     docker:

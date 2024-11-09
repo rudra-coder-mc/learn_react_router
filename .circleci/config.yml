@@ -35,17 +35,17 @@ jobs:
           command: sudo apt-get update && sudo apt-get install -y openssh-client
       - add_ssh_keys:
           fingerprints:
-          - "SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc"  # Ensure this matches your CircleCI SSH key fingerprint
+          - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc  # Ensure this matches your CircleCI SSH key fingerprint
       - run:
           name: Deploy to EC2
           command: |
             # SSH into EC2 instance and remove existing files
-            ssh -o StrictHostKeyChecking=no ec2-user@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com "
+            ssh -o StrictHostKeyChecking=no ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com "
               sudo rm -rf /var/www/html/*
               sudo mkdir -p /var/www/html
             "
             # Copy new build files to EC2
-            scp -r ~/artifacts/* ec2-user@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
+            scp -r ~/artifacts/* ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
 
 workflows:
   build-and-deploy:

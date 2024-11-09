@@ -15,9 +15,6 @@ jobs:
       - run:
           command: npm run build
       - run:
-          name: List build files after build
-          command: ls -alh dist public  # Check if the build output exists
-      - run:
           name: Create the ~/artifacts directory if it doesn't exist
           command: |
             mkdir -p ~/artifacts
@@ -27,13 +24,10 @@ jobs:
           command: |
             cp -R dist public ~/artifacts 2>/dev/null || true
             ls -alh ~/artifacts  # Verify if files are copied correctly
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
       - persist_to_workspace:
-          root: ~/artifacts  # Persist artifacts to workspace
+          root: ~/  # Persist the entire home directory (or only artifacts folder)
           paths:
-            - . # Make all contents under the home directory available to the next job
+            - ~/artifacts  # Save the artifacts directory to the workspace
 
   deploy:
     docker:
@@ -46,3 +40,28 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc
+      - attach_workspace:
+          at: /workspace  # Attach workspace to the container's `/workspace` directory
+      - run:
+          name: List artifacts directory before deploy
+          command: |
+            echo "Listing artifacts directory"
+            ls -alh /workspace/artifacts  # Verify the directory exists before deployment
+      - run:
+          name: Deploy to EC2
+          command: |
+            # SSH into EC2 instance and remove existing files
+            ssh -o StrictHostKeyChecking=no ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com "
+              sudo rm -rf /var/www/html/*
+              sudo mkdir -p /var/www/html
+            "
+            # Copy new build files to EC2
+            scp -r /workspace/artifacts/* ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
+
+workflows:
+  build-and-deploy:
+    jobs:
+      - build-node
+      - deploy:
+          requires:
+            - build-node

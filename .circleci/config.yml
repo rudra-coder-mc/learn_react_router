@@ -7,6 +7,7 @@ jobs:
   build-node:
     # Build node project
     executor: node/default
+    working_directory: /home/circleci/project  # Specify working directory
     steps:
       - checkout
       - node/install-packages:
@@ -25,13 +26,14 @@ jobs:
             cp -R dist public artifacts 2>/dev/null || true
             ls -alh artifacts  # Verify if files are copied correctly
       - persist_to_workspace:
-          root: .  # Use current directory (relative to workspace root)
+          root: /home/circleci/project  # Persist from the specified working directory
           paths:
             - artifacts  # Persist the artifacts directory
 
   deploy:
     docker:
       - image: cimg/base:stable
+    working_directory: /workspace  # Specify working directory for deploy job
     steps:
       - setup_remote_docker
       - run:
@@ -41,17 +43,17 @@ jobs:
           fingerprints:
             - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc
       - attach_workspace:
-          at: /workspace  # Attach workspace to /workspace directory
+          at: /home/circleci/deploy  # Attach workspace to a custom path
       - run:
           name: List workspace contents before deploy
           command: |
-            echo "Listing contents of /workspace before deploy"
-            ls -alh /workspace  # Ensure the workspace is correctly attached and populated
+            echo "Listing contents of /home/circleci/deploy before deploy"
+            ls -alh /home/circleci/deploy  # Verify the workspace is correctly attached and populated
       - run:
           name: List artifacts directory in workspace
           command: |
             echo "Listing artifacts directory inside workspace"
-            ls -alh /workspace/artifacts  # Verify artifacts are available
+            ls -alh /home/circleci/deploy/artifacts  # Verify artifacts are available
       - run:
           name: Deploy to EC2
           command: |
@@ -61,7 +63,7 @@ jobs:
               sudo mkdir -p /var/www/html
             "
             # Copy new build files to EC2
-            scp -r /workspace/artifacts/* ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
+            scp -r /home/circleci/deploy/artifacts/* ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
 
 workflows:
   build-and-deploy:

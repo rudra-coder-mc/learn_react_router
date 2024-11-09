@@ -25,9 +25,9 @@ jobs:
             cp -R dist public ~/artifacts 2>/dev/null || true
             ls -alh ~/artifacts  # Verify if files are copied correctly
       - persist_to_workspace:
-          root: ~/  # Persist the entire home directory (or only artifacts folder)
+          root: ~/
           paths:
-            - ~/artifacts  # Save the artifacts directory to the workspace
+            - artifacts  # Use a relative path to the workspace root
 
   deploy:
     docker:

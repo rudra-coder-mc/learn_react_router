@@ -25,9 +25,9 @@ jobs:
             cp -R dist public ~/artifacts 2>/dev/null || true
             ls -alh ~/artifacts  # Verify if files are copied correctly
       - persist_to_workspace:
-          root: ~/artifacts  # Persist only the artifacts directory
+          root: ~/  # Persist the home directory
           paths:
-            - .  # Ensure we persist the content in the artifacts directory
+            - ~/artifacts  # Only persist the artifacts directory
 
   deploy:
     docker:
@@ -41,12 +41,17 @@ jobs:
           fingerprints:
             - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc
       - attach_workspace:
-          at: /workspace  # Attach workspace to the container's `/workspace` directory
+          at: /workspace  # Attach workspace to /workspace directory
       - run:
-          name: List artifacts directory before deploy
+          name: List workspace contents before deploy
           command: |
-            echo "Listing artifacts directory"
-            ls -alh /workspace  # Ensure the workspace has been attached correctly
+            echo "Listing contents of /workspace before deploy"
+            ls -alh /workspace  # Ensure the workspace is correctly attached and populated
+      - run:
+          name: List artifacts directory in workspace
+          command: |
+            echo "Listing artifacts directory inside workspace"
+            ls -alh /workspace/artifacts  # Verify artifacts are available
       - run:
           name: Deploy to EC2
           command: |
@@ -56,7 +61,7 @@ jobs:
               sudo mkdir -p /var/www/html
             "
             # Copy new build files to EC2
-            scp -r /workspace/* ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
+            scp -r /workspace/artifacts/* ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
 
 workflows:
   build-and-deploy:

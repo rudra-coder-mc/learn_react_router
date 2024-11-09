@@ -35,7 +35,7 @@ jobs:
           command: sudo apt-get update && sudo apt-get install -y openssh-client
       - add_ssh_keys:
           fingerprints:
-            - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc  # Ensure this matches your CircleCI SSH key fingerprint
+          - "SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc"  # Ensure this matches your CircleCI SSH key fingerprint
       - run:
           name: Deploy to EC2
           command: |

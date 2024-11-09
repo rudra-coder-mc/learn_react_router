@@ -16,16 +16,17 @@ jobs:
           command: npm run build
       - run:
           name: List build files after build
-          command: ls -alh dist public  # Verify the build output
+          command: ls -alh dist public  # Check if the build output exists
       - run:
           name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
+          command: |
+            mkdir -p ~/artifacts
+            ls -alh ~/artifacts  # Verify directory creation
       - run:
           name: Copy artifacts
-          command: cp -R dist public ~/artifacts 2>/dev/null || true
-      - run:
-          name: List artifacts directory after copy
-          command: ls -alh ~/artifacts  # Debug step
+          command: |
+            cp -R dist public ~/artifacts 2>/dev/null || true
+            ls -alh ~/artifacts  # Verify if files are copied correctly
       - store_artifacts:
           path: ~/artifacts
           destination: node-build
@@ -43,7 +44,9 @@ jobs:
             - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc
       - run:
           name: List artifacts directory before deploy
-          command: ls -alh ~/artifacts  # Debug step
+          command: |
+            echo "Listing artifacts directory"
+            ls -alh ~/artifacts  # Verify the directory exists before deployment
       - run:
           name: Deploy to EC2
           command: |

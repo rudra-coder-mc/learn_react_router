@@ -1,14 +1,10 @@
 version: 2.1
 
-executors:
-  my-executor:
-    docker:
-      - image: cimg/base:stable
-    working_directory: /tmp
+orbs:
+  node: circleci/node@5.0.0  # Ensure the version is specified correctly
 
 jobs:
   build-node:
-    # Build node project
     executor: my-executor
     steps:
       - checkout
@@ -22,7 +18,6 @@ jobs:
           command: |
             mkdir -p ~/artifacts
             ls -alh ~/artifacts  # Verify directory creation
-      # Copy output to artifacts dir
       - run:
           name: Copy artifacts
           command: |

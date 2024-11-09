@@ -5,7 +5,6 @@ orbs:
 
 jobs:
   build-node:
-    # Build node project
     executor: node/default
     working_directory: /home/circleci/project  # Specify working directory
     steps:
@@ -33,7 +32,7 @@ jobs:
   deploy:
     docker:
       - image: cimg/base:stable
-    working_directory: /workspace  # Specify working directory for deploy job
+    working_directory: /home/circleci/deploy  # Specify working directory for deploy job
     steps:
       - setup_remote_docker
       - run:
@@ -43,7 +42,7 @@ jobs:
           fingerprints:
             - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc
       - attach_workspace:
-          at: /home/circleci/deploy  # Attach workspace to a custom path
+          at: /home/circleci/deploy  # Attach workspace to a custom path inside home directory
       - run:
           name: List workspace contents before deploy
           command: |

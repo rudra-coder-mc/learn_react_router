@@ -1,12 +1,15 @@
 version: 2.1
 
-orbs:
-  node: circleci/node@5
+executors:
+  my-executor:
+    docker:
+      - image: cimg/base:stable
+    working_directory: /tmp
 
 jobs:
   build-node:
     # Build node project
-    executor: node/default
+    executor: my-executor
     steps:
       - checkout
       - node/install-packages:
@@ -19,34 +22,33 @@ jobs:
           command: |
             mkdir -p ~/artifacts
             ls -alh ~/artifacts  # Verify directory creation
+      # Copy output to artifacts dir
       - run:
           name: Copy artifacts
           command: |
             cp -R dist public ~/artifacts 2>/dev/null || true
             ls -alh ~/artifacts  # Verify if files are copied correctly
       - persist_to_workspace:
-          root: ~/
+          root: ~/artifacts  # Persist the artifacts folder to workspace
           paths:
-            - artifacts  # Use a relative path to the workspace root
+            - .  # Persist everything under ~/artifacts
 
   deploy:
     docker:
       - image: cimg/base:stable
     steps:
-      - setup_remote_docker
+      - setup_remote_docker  # Ensure Docker is available if needed
       - run:
           name: Install SSH Client
           command: sudo apt-get update && sudo apt-get install -y openssh-client
       - add_ssh_keys:
           fingerprints:
-            - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc
+            - SHA256:4btujYU9LiUjTMFWqpGKYAAy2H3AB9SM0H9OCrvHyhc  # Ensure this matches your CircleCI SSH key fingerprint
       - attach_workspace:
-          at: /workspace  # Attach workspace to the container's `/workspace` directory
+          at: /workspace  # Attach workspace to /workspace directory in the deploy job
       - run:
-          name: List artifacts directory before deploy
-          command: |
-            echo "Listing artifacts directory"
-            ls -alh /workspace/artifacts  # Verify the directory exists before deployment
+          name: List workspace contents before deploy
+          command: ls -alh /workspace  # Verify workspace is attached correctly
       - run:
           name: Deploy to EC2
           command: |
@@ -56,7 +58,7 @@ jobs:
               sudo mkdir -p /var/www/html
             "
             # Copy new build files to EC2
-            scp -r /workspace/artifacts/* ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
+            scp -r /workspace/* ubuntu@ec2-43-205-70-13.ap-south-1.compute.amazonaws.com:/var/www/html
 
 workflows:
   build-and-deploy:

@@ -15,14 +15,14 @@ jobs:
       - run:
           command: npm run build
       - run:
+          name: List build files after build
+          command: ls -alh dist public  # Verify the build output
+      - run:
           name: Create the ~/artifacts directory if it doesn't exist
           command: mkdir -p ~/artifacts
       - run:
-          name: List build files before copying
-          command: ls -alh build dist public .output .next .docusaurus
-      - run:
           name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts || true
+          command: cp -R dist public ~/artifacts 2>/dev/null || true
       - run:
           name: List artifacts directory after copy
           command: ls -alh ~/artifacts  # Debug step

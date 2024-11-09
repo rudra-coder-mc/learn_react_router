@@ -15,19 +15,19 @@ jobs:
       - run:
           command: npm run build
       - run:
-          name: Create the /home/circleci/artifacts directory if it doesn't exist
+          name: Create the artifacts directory if it doesn't exist
           command: |
-            mkdir -p /home/circleci/artifacts
-            ls -alh /home/circleci/artifacts  # Verify directory creation
+            mkdir -p artifacts
+            ls -alh artifacts  # Verify directory creation
       - run:
           name: Copy artifacts
           command: |
-            cp -R dist public /home/circleci/artifacts 2>/dev/null || true
-            ls -alh /home/circleci/artifacts  # Verify if files are copied correctly
+            cp -R dist public artifacts 2>/dev/null || true
+            ls -alh artifacts  # Verify if files are copied correctly
       - persist_to_workspace:
-          root: /home/circleci  # Persist the home directory
+          root: .  # Use current directory (relative to workspace root)
           paths:
-            - /home/circleci/artifacts  # Persist the artifacts directory
+            - artifacts  # Persist the artifacts directory
 
   deploy:
     docker:

@@ -49,6 +49,9 @@ jobs:
       - attach_workspace:
           at: /workspace  # Attach workspace to the container's `/workspace` directory
       - run:
+          name: Create /workspace/artifacts directory
+          command: mkdir -p /workspace/artifacts  # Create directory if it doesn't exist
+      - run:
           name: List artifacts directory before deploy
           command: |
             echo "Listing artifacts directory"
